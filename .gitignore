@@ -1,0 +1,5 @@
+# For detailed .gitignore templates visit https://github.com/github/gitignore
+# C Project related gitignore
+C_project/_obj
+C_project/prog
+
