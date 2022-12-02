@@ -1,0 +1,39 @@
+# basic makefile for C++ with option to create a shared library
+
+# Define the compiler and flags
+CC = g++
+CFLAGS = -Iinclude -Wall
+
+# Define the sources, objects, and executable files
+SOURCES = $(wildcard src/*.cpp)
+OBJECTS = $(patsubst src/%,objects/%,$(SOURCES:.cpp=.o))
+EXECUTABLE = my_program
+
+# Define the shared library
+SHARED_LIBRARY = libmy_program.so
+
+# Define the default target
+all: $(EXECUTABLE)
+
+# Define the target for the executable file
+$(EXECUTABLE): $(OBJECTS)
+    $(CC) $(OBJECTS) -o $@
+
+# Define the pattern rule for creating object files
+objects/%.o: src/%.cpp
+    $(CC) $(CFLAGS) -c $< -o $@
+
+# Define the target for creating the shared library
+shared: $(OBJECTS)
+    $(CC) $(OBJECTS) -o $(SHARED_LIBRARY) -shared
+
+# Define the clean target
+clean:
+    rm -f $(OBJECTS) $(EXECUTABLE) $(SHARED_LIBRARY)
+
+# Define the help target
+help:
+    @echo "Available targets:"
+    @echo "  all: build the executable file"
+    @echo "  shared: build the shared library"
+    @echo "  clean
