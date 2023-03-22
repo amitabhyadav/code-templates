@@ -1,0 +1,58 @@
+# Variables
+CXX = g++
+CXXFLAGS = -std=c++2a -Iinclude
+LDFLAGS =
+SRCDIR = src
+INCDIR = include
+BUILDDIR = build
+OBJDIR = $(BUILDDIR)/obj
+ASMDIR = $(BUILDDIR)/asm
+EXECDIR = $(BUILDDIR)/exec
+
+# Find all source files
+SRCS = $(shell find $(SRCDIR) -type f -name "*.cpp")
+# Generate corresponding object file paths
+OBJS = $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRCS))
+# Generate corresponding assembly file paths
+ASMS = $(patsubst $(SRCDIR)/%.cpp, $(ASMDIR)/%.s, $(SRCS))
+
+# Default target
+all: dirs $(EXECDIR)/program
+
+# Rule to create directories
+dirs:
+	mkdir -p $(OBJDIR) $(ASMDIR) $(EXECDIR)
+	@find $(SRCDIR) -type d | sed -e "s#$(SRCDIR)#$(OBJDIR)#" | xargs mkdir -p
+	@find $(SRCDIR) -type d | sed -e "s#$(SRCDIR)#$(ASMDIR)#" | xargs mkdir -p
+
+# Rule for creating the executable
+$(EXECDIR)/program: $(OBJS)
+	$(CXX) $(LDFLAGS) $^ -o $@
+
+# Rule for creating object files
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Rule for creating assembly files
+$(ASMDIR)/%.s: $(SRCDIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -S $< -o $@
+
+# Additional targets
+assembly: dirs $(ASMS)
+objects: dirs $(OBJS)
+
+# Clean target
+clean:
+	rm -rf $(BUILDDIR)
+
+# Help target
+help:
+	@echo "Usage:"
+	@echo "  make [all]      - Compile the project and create the executable"
+	@echo "  make assembly   - Generate assembly files"
+	@echo "  make objects    - Generate object files"
+	@echo "  make clean      - Remove the build directory and its contents"
+	@echo "  make help       - Display this help message"
+
+# Makefile will not treat these targets as files
+.PHONY: all dirs clean assembly objects help
